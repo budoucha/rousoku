@@ -5,9 +5,9 @@ AudioIn input;
 Amplitude amp;
 PImage img;
 
-int scale=1;
-int maxs=0;
-int back=128;
+int micLevel=1;
+int micLevelMax=0;
+int dark=0;
 int timer=0;
 
 void setup() {
@@ -30,26 +30,31 @@ void setup() {
 
 
 void draw() {
-  fill(back, 36);
-  rect(0, 0, width, height);
-  if (back>=128) {
-    image(img, width/2, height/2);
-    timer=0;
-  }
-  if (back<128) {
-    timer++;
-  }
-  if (timer>60) {
-    timer=0;
-    back=128;
-  }  
-  scale=int(map(amp.analyze(), 0, 1, 0, 255));
+  update();
+  background(128);
+  image(img, width/2, height/2);
 
-  if (scale>64) {
-    back=0;
+  fill(0, dark);
+  rect(0, 0, width, height);
+}
+
+void update() {
+  micLevel=int(map(amp.analyze(), 0, 1, 0, 255));
+
+  if (micLevel>64) {
+    timer = 60;
   }
-  if (scale>maxs) {
-    maxs=scale;
+
+  if (timer > 0) {
+    dark=constrain(dark+36, 0, 255);
+    timer--;
+  } else {
+    dark=constrain(dark-36, 0, 255);
+    timer = 0;
   }
-  println(maxs, timer);
+
+  if (micLevel>micLevelMax) {//to hold the biggest value.
+    micLevelMax=micLevel;
+  }
+  println(micLevel, micLevelMax);
 }
